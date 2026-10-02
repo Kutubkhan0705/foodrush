@@ -9,14 +9,20 @@ export default function Menu() {
   const [active, setActive] = useState('All');
   const [search, setSearch] = useState('');
 
-  const handleCat = (cat) => { setActive(cat); fetchFoods(cat === 'All' ? '' : cat); };
+  const handleCat = (cat) => { setActive(cat); fetchFoods(cat === 'All' ? '' : cat); setSearch(''); };
+
+  const handleSearch = (val) => {
+    setSearch(val);
+    if (val.trim()) { setActive('All'); fetchFoods(''); }
+  };
+
   const filtered = foods.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div style={styles.container}>
       <div className="menu-header" style={styles.header}>
         <h1 style={styles.title}>Our Menu</h1>
-        <input className="menu-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search dishes..." style={styles.search} />
+        <input className="menu-search" value={search} onChange={e => handleSearch(e.target.value)} placeholder="🔍 Search dishes..." style={styles.search} />
       </div>
       <div style={styles.cats}>
         {categories.map(cat => (

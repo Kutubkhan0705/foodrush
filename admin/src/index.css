@@ -1,0 +1,5 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; }
+button:hover { opacity: 0.9; }
+input:focus, select:focus, textarea:focus { border-color: #ff6b35 !important; }
+@keyframes spin { to { transform: rotate(360deg); } }

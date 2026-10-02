@@ -24,7 +24,10 @@ router.get('/all', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 router.put('/status/:id', authMiddleware, adminMiddleware, async (req, res) => {
-  const order = await Order.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+  const { status } = req.body;
+  const update = { status };
+  if (status === 'Delivered') update.payment = true;
+  const order = await Order.findByIdAndUpdate(req.params.id, update, { new: true });
   res.json(order);
 });
 

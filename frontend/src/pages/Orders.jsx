@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import API from '../utils/api';
+import { io } from 'socket.io-client';
 import { FaBox, FaMotorcycle, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+
+const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 const statusConfig = {
   'Food Processing': { icon: <FaBox />, color: '#f59e0b', bg: '#fffbeb' },
@@ -18,6 +21,12 @@ export default function Orders() {
   useEffect(() => {
     if (!user) return;
     API.get('/order/myorders').then(({ data }) => { setOrders(data); setLoading(false); });
+
+    const socket = io(SOCKET_URL);
+    socket.on('order-updated', ({ orderId, status, payment }) => {
+      setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status, payment } : o));
+    });
+    return () => socket.disconnect();
   }, [user]);
 
   if (!user) return <div style={styles.center}><h2>Please <a href="/login" style={{ color: '#ff6b35' }}>login</a> to view orders</h2></div>;

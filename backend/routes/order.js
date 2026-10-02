@@ -28,6 +28,7 @@ router.put('/status/:id', authMiddleware, adminMiddleware, async (req, res) => {
   const update = { status };
   if (status === 'Delivered') update.payment = true;
   const order = await Order.findByIdAndUpdate(req.params.id, update, { new: true });
+  req.app.get('io').emit('order-updated', { orderId: order._id, status, payment: order.payment });
   res.json(order);
 });
 

@@ -3,10 +3,31 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      process.env.FRONTEND_URL,
+      process.env.ADMIN_URL
+    ].filter(Boolean),
+    methods: ['GET', 'POST']
+  }
+});
+
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  socket.on('join-admin', () => socket.join('admin-room'));
+});
+
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -82,4 +103,4 @@ app.get('/api/seed', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

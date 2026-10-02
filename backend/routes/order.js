@@ -6,6 +6,7 @@ const router = express.Router();
 router.post('/place', authMiddleware, async (req, res) => {
   try {
     const order = await Order.create({ userId: req.user.id, ...req.body });
+    req.app.get('io').to('admin-room').emit('new-order', order);
     res.json(order);
   } catch (err) {
     res.status(500).json({ message: err.message });

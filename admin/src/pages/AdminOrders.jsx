@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
+import { io } from 'socket.io-client';
 
+const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 const statuses = ['Food Processing', 'Out for Delivery', 'Delivered', 'Cancelled'];
 const statusColors = { 'Food Processing': '#f59e0b', 'Out for Delivery': '#3b82f6', 'Delivered': '#22c55e', 'Cancelled': '#ef4444' };
 
@@ -12,6 +14,14 @@ export default function AdminOrders() {
 
   useEffect(() => {
     API.get('/order/all').then(({ data }) => { setOrders(data); setLoading(false); }).catch(() => setLoading(false));
+
+    const socket = io(SOCKET_URL);
+    socket.emit('join-admin');
+    socket.on('new-order', (order) => {
+      setOrders(prev => [order, ...prev]);
+      toast.success('🛎️ New order received!');
+    });
+    return () => socket.disconnect();
   }, []);
 
   const updateStatus = async (id, status) => {
